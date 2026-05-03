@@ -63,9 +63,9 @@ footer {
 let jobs = [];
 
 /* FreeJobAlert RSS */
-async function fetchRSS() {
+async function fetchFreeJobAlert() {
   const res = await fetch("https://api.allorigins.win/get?url=" +
-    encodeURIComponent("https://www.sarkariresult.com/"));
+    encodeURIComponent("https://www.freejobalert.com/feed/"));
   const data = await res.json();
   const parser = new DOMParser();
   const xml = parser.parseFromString(data.contents, "text/xml");
@@ -73,7 +73,7 @@ async function fetchRSS() {
 
   return [...items].map(item => ({
     title: item.querySelector("title").textContent,
-    source: "Sarkari Result",
+    source: "FreeJobAlert",
     date: item.querySelector("pubDate").textContent,
     link: item.querySelector("link").textContent
   }));
@@ -83,7 +83,7 @@ async function fetchRSS() {
 async function fetchSarkariResult() {
   try {
     const res = await fetch("https://api.allorigins.win/get?url=" +
-      encodeURIComponent("https://www.freejobalert.com/feed/"));
+      encodeURIComponent("https://www.sarkariresult.com/"));
     const data = await res.json();
     const parser = new DOMParser();
     const doc = parser.parseFromString(data.contents, "text/html");
@@ -154,13 +154,13 @@ async function loadJobs() {
   document.getElementById("status").innerText =
     "Fetching live jobs from multiple sources...";
   try {
-    const [rss, sr, tj, fw] = await Promise.all([
-      fetchRSS(),
+    const [fja, sr, tj, fw] = await Promise.all([
+      fetchFreeJobAlert(),
       fetchSarkariResult(),
       fetchTimesJobs(),
       fetchFreshersWorld()
     ]);
-    jobs = [...rss, ...sr, ...tj, ...fw];
+    jobs = [...fja, ...sr, ...tj, ...fw];
     renderJobs(jobs);
     document.getElementById("status").innerText =
       `Loaded ${jobs.length} jobs`;
