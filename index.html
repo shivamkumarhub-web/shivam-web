@@ -2,30 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SarkariAlert — ChatGPT Powered</title>
+<title>SarkariAlert Live Jobs</title>
 
 <style>
-/* KEEPING YOUR UI CLEAN BUT SHORTENED */
 body {
   font-family: Arial;
   background:#0c1730;
   color:#fff;
-  margin:0;
 }
 
 header {
-  background:#111e40;
   padding:15px;
+  background:#111e40;
   display:flex;
   justify-content:space-between;
-}
-
-button {
-  padding:10px;
-  background:gold;
-  border:none;
-  cursor:pointer;
 }
 
 .jobs {
@@ -40,13 +30,15 @@ button {
   padding:15px;
   border-radius:10px;
 }
+
+a { color:gold; }
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>SarkariAlert (ChatGPT Powered)</h2>
+  <h2>🇮🇳 SarkariAlert (Live Jobs)</h2>
   <button onclick="fetchJobs()">Refresh</button>
 </header>
 
@@ -55,104 +47,52 @@ button {
 
 <script>
 
-let allJobs = [];
-
-/* ============================= */
-/* 🔥 CHATGPT API STRUCTURE MOCK */
-/* ============================= */
+/* ========================= */
+/* 🔥 REAL JOB FETCH */
+/* ========================= */
 
 async function fetchJobs() {
 
-  document.getElementById("status").innerText = "Fetching from ChatGPT...";
+  document.getElementById("status").innerText = "Fetching live jobs...";
 
-  // ⚠️ Replace this with backend later
-  const chatgptResponse = await simulateChatGPT();
+  try {
 
-  allJobs = chatgptResponse;
+    // 🔥 Using RSS feed (CORS friendly proxy)
+    const res = await fetch("https://api.allorigins.win/get?url=" +
+      encodeURIComponent("https://www.freejobalert.com/feed/"));
 
-  renderJobs(allJobs);
+    const data = await res.json();
 
-  document.getElementById("status").innerText = "Updated successfully";
-}
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(data.contents, "text/xml");
 
-/* ============================= */
-/* 🔥 SIMULATED CHATGPT RESPONSE */
-/* ============================= */
+    const items = xml.querySelectorAll("item");
 
-function simulateChatGPT() {
+    let jobsHTML = "";
 
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve([
-        {
-          title:"SSC CGL 2026",
-          organization:"SSC",
-          category:"Central",
-          vacancies:7500,
-          qualification:"Graduate",
-          location:"All India",
-          lastDate:"2026-06-15",
-          salary:"₹25,500 – ₹81,100",
-          applyLink:"https://ssc.nic.in"
-        },
-        {
-          title:"IBPS PO 2026",
-          organization:"IBPS",
-          category:"Banking",
-          vacancies:4000,
-          qualification:"Graduate",
-          location:"All India",
-          lastDate:"2026-06-10",
-          salary:"₹52,000/month",
-          applyLink:"https://ibps.in"
-        },
-        {
-          title:"Indian Army Agniveer",
-          organization:"Indian Army",
-          category:"Defence",
-          vacancies:25000,
-          qualification:"10th/12th",
-          location:"All India",
-          lastDate:"2026-05-30",
-          salary:"₹30,000/month",
-          applyLink:"https://joinindianarmy.nic.in"
-        }
-      ]);
-    },1500);
-  });
-}
+    items.forEach((item, index) => {
 
-/* ============================= */
-/* RENDER JOBS */
-/* ============================= */
+      if(index > 20) return; // limit 20+
 
-function renderJobs(jobs) {
-  const container = document.getElementById("jobs");
-  container.innerHTML = "";
+      const title = item.querySelector("title").textContent;
+      const link = item.querySelector("link").textContent;
+      const date = item.querySelector("pubDate").textContent;
 
-  jobs.forEach(job => {
+      jobsHTML += `
+        <div class="card">
+          <h3>${title}</h3>
+          <p>📅 ${date}</p>
+          <a href="${link}" target="_blank">View Details →</a>
+        </div>
+      `;
+    });
 
-    let deadline = job.lastDate;
-    const d = new Date(job.lastDate);
+    document.getElementById("jobs").innerHTML = jobsHTML;
+    document.getElementById("status").innerText = "Live jobs loaded";
 
-    if(!isNaN(d)) {
-      const diff = Math.ceil((d - Date.now()) / 86400000);
-      if(diff <= 0) deadline = "Expired";
-      else deadline = diff + " days left";
-    }
-
-    container.innerHTML += `
-      <div class="card">
-        <h3>${job.title}</h3>
-        <p>🏢 ${job.organization}</p>
-        <p>📍 ${job.location}</p>
-        <p>🎓 ${job.qualification}</p>
-        <p>💰 ${job.salary}</p>
-        <p>⏰ ${deadline}</p>
-        <a href="${job.applyLink}" target="_blank" style="color:gold">Apply →</a>
-      </div>
-    `;
-  });
+  } catch(err) {
+    document.getElementById("status").innerText = "Error loading jobs";
+  }
 }
 
 /* AUTO LOAD */
