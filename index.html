@@ -1,187 +1,935 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shivam Kumar | Java Full Stack Developer</title>
-  <style>
-    /* Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SarkariAlert — Live Government Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-    body {
-      font-family: system-ui, sans-serif;
-      line-height: 1.6;
-      background: #f9f9f9;
-      color: #333;
-    }
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    header.top {
-      background: #3e2f2f;
-      color: #fff;
-      text-align: center;
-      padding: 1rem;
-      position: sticky;
-      top: 0;
-    }
+  :root {
+    --navy:   #0c1730;
+    --navy2:  #111e40;
+    --navy3:  #172454;
+    --gold:   #c8973a;
+    --gold2:  #e6b35a;
+    --gold3:  #f5d07a;
+    --cream:  #f7f2e8;
+    --cream2: #ede5d4;
+    --slate:  #94a3b8;
+    --red:    #e85555;
+    --green:  #3aad7e;
+    --blue:   #4a90d9;
+    --text:   #e8dfc8;
+    --muted:  #7a8eaa;
+    --border: rgba(200,151,58,0.18);
+    --radius: 10px;
+    --shadow: 0 4px 32px rgba(0,0,0,0.35);
+  }
 
-    #layout {
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      gap: 1.5rem;
-      padding: 1.5rem;
-    }
+  html { font-size: 15px; scroll-behavior: smooth; }
 
-    .sidebar {
-      background: #fff8f0;
-      padding: 1rem;
-      border-radius: 8px;
-    }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,151,58,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(200,151,58,0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(200,151,58,0.03) 40px);
+  }
 
-    .sidebar h2 {
-      color: #c23a3a;
-      margin-bottom: 0.5rem;
-    }
+  /* ===== HEADER ===== */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(16px);
+    background: rgba(12,23,48,0.92);
+  }
 
-    .content {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-    }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
 
-    .content h2 {
-      color: #3e2f2f;
-      margin-bottom: 0.5rem;
-    }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-    footer.footer {
-      background: #261e1e;
-      color: #fff;
-      text-align: center;
-      padding: 1rem;
-      margin-top: 2rem;
-    }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    font-family: 'Playfair Display', serif;
+    color: var(--navy);
+    font-weight: 900;
+  }
 
-    /* Responsive layout for mobile */
-    @media (max-width: 768px) {
-      #layout {
-        grid-template-columns: 1fr;
-      }
-      .sidebar {
-        margin-bottom: 1rem;
-      }
-    }
-  </style>
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gold2);
+    letter-spacing: 0.02em;
+  }
+
+  .logo-sub {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    line-height: 1;
+  }
+
+  .header-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .live-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--green);
+  }
+
+  .live-dot::before {
+    content: '';
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+
+  /* ===== HERO BANNER ===== */
+  .hero {
+    max-width: 1100px;
+    margin: 3rem auto 2rem;
+    padding: 0 2rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--cream);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero h1 span { color: var(--gold2); }
+
+  .hero-desc {
+    color: var(--muted);
+    max-width: 520px;
+    font-size: 0.9rem;
+  }
+
+  /* ===== STATS ROW ===== */
+  .stats-row {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold2);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ===== CONTROLS ===== */
+  .controls {
+    max-width: 1100px;
+    margin: 0 auto 1.5rem;
+    padding: 0 2rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input:focus { border-color: var(--gold); }
+  .search-wrap input::placeholder { color: var(--muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.6rem 1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    min-width: 130px;
+  }
+
+  select:focus { border-color: var(--gold); }
+  select option { background: var(--navy2); }
+
+  .btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: var(--radius);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: var(--navy);
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ===== LOADING STATE ===== */
+  .loading-box {
+    max-width: 1100px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+    text-align: center;
+  }
+
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto 1.5rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .loading-steps { margin-top: 1rem; }
+
+  .load-step {
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 4px 0;
+    transition: color 0.3s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .load-step.active { color: var(--gold2); }
+  .load-step.done { color: var(--green); }
+
+  /* ===== JOBS GRID ===== */
+  .jobs-section {
+    max-width: 1100px;
+    margin: 0 auto 4rem;
+    padding: 0 2rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--cream2);
+  }
+
+  .result-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+  }
+
+  .jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 1.25rem;
+  }
+
+  /* ===== JOB CARD ===== */
+  .job-card {
+    background: rgba(17,30,64,0.7);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: all 0.22s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .job-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.28s;
+  }
+
+  .job-card:hover {
+    border-color: rgba(200,151,58,0.4);
+    background: rgba(23,36,84,0.8);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .job-card:hover::before { transform: scaleX(1); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .org-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(200,151,58,0.12);
+    color: var(--gold2);
+    border: 1px solid rgba(200,151,58,0.25);
+    border-radius: 4px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .category-tag {
+    font-size: 0.65rem;
+    font-weight: 500;
+    border-radius: 4px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  .cat-central { background: rgba(74,144,217,0.15); color: #7ab8f0; border: 1px solid rgba(74,144,217,0.25); }
+  .cat-state   { background: rgba(58,173,126,0.15); color: #6ddbb0; border: 1px solid rgba(58,173,126,0.25); }
+  .cat-psu     { background: rgba(200,151,58,0.15); color: var(--gold2); border: 1px solid rgba(200,151,58,0.25); }
+  .cat-banking { background: rgba(160,80,200,0.15); color: #c489f0; border: 1px solid rgba(160,80,200,0.25); }
+  .cat-defence { background: rgba(232,85,85,0.15); color: #f09090; border: 1px solid rgba(232,85,85,0.25); }
+  .cat-railway { background: rgba(230,150,60,0.15); color: #f0b070; border: 1px solid rgba(230,150,60,0.25); }
+
+  .job-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.35;
+  }
+
+  .job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .meta-icon { font-size: 0.72rem; }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(200,151,58,0.1);
+    margin-top: auto;
+  }
+
+  .deadline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+  }
+
+  .deadline.urgent { color: var(--red); }
+  .deadline.normal { color: var(--muted); }
+  .deadline.soon   { color: #f5a623; }
+
+  .apply-link {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--gold);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s;
+  }
+
+  .apply-link:hover { color: var(--gold2); }
+
+  .vacancies-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    background: rgba(58,173,126,0.1);
+    border: 1px solid rgba(58,173,126,0.2);
+    border-radius: 20px;
+    padding: 2px 8px;
+  }
+
+  /* ===== EMPTY / ERROR STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--cream2); margin-bottom: 0.5rem; }
+
+  .error-box {
+    background: rgba(232,85,85,0.08);
+    border: 1px solid rgba(232,85,85,0.25);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    color: #f09090;
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    max-width: 1100px;
+    margin: 1rem auto;
+    padding-left: 2rem; padding-right: 2rem;
+  }
+
+  /* ===== TICKER ===== */
+  .ticker-bar {
+    background: rgba(200,151,58,0.1);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-flex;
+    animation: ticker 38s linear infinite;
+    gap: 3rem;
+  }
+
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .ticker-item {
+    font-size: 0.75rem;
+    color: var(--gold2);
+    font-family: 'JetBrains Mono', monospace;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ticker-item::before { content: '◆'; font-size: 0.5rem; color: var(--gold); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  footer a { color: var(--gold); text-decoration: none; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.8rem; }
+    .jobs-grid { grid-template-columns: 1fr; }
+    .controls { flex-direction: column; }
+    .search-wrap { min-width: 100%; }
+    select { width: 100%; }
+    .btn { width: 100%; justify-content: center; }
+  }
+</style>
 </head>
 <body>
 
-
-  <script>
-
-    window.onLoad = function () {
-      alert("Welcome to My Website..."
-    };
-  </script>
-  <!-- Header -->
-  <header class="top">
-    <h1>Shivam Kumar</h1>
-    <p>Java Full Stack Developer</p>
-  </header>
-
-  <!-- Layout Grid -->
-  <div id="layout">
-
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <section>
-        <h2>Front-End Technology</h2>
-        <p>React.js, JSX, Tailwind CSS, HTML5, CSS3, JavaScript (ES6+), Responsive UI/UX Design</p>
-      </section>
-
-      <section>
-        <h2>Back-End Development</h2>
-        <p>Java, Spring Boot, RESTful APIs, Microservices Architecture, Authentication & Authorization</p>
-      </section>
-
-      <section>
-        <h2>Database Management</h2>
-        <p>MySQL, MongoDB, Query Optimization</p>
-      </section>
-
-      <section>
-        <h2>Security Practices</h2>
-        <p>Secure coding principles, OWASP fundamentals, Data protection strategies</p>
-      </section>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="content">
-      <section>
-        <h2>🌟 About Me</h2>
-        <p>My name is Shivam Kumar, and I am a passionate Java Full Stack Developer who thrives on building advanced web applications and dynamic websites that merge creativity with engineering precision...</p>
-      </section>
-
-      <section>
-        <h2>🎓 Academic Journey</h2>
-        <p>I completed my Bachelor of Commerce (B.Com) from Osmania University, Hyderabad, graduating with an outstanding 8.9 CGPA...</p>
-      </section>
-
-      <section>
-        <h2>💻 Technical Expertise</h2>
-        <ul>
-          <li><strong>Front-End:</strong> React.js, Tailwind, Framer Motion</li>
-          <li><strong>Back-End:</strong> Java, Spring Boot, REST APIs</li>
-          <li><strong>Databases:</strong> MySQL, PostgreSQL, MongoDB</li>
-          <li><strong>Cloud & Deployment:</strong> AWS, GitHub Pages, CI/CD</li>
-          <li><strong>Security:</strong> Secure coding, OWASP, modular design</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>🚀 Professional Vision</h2>
-        <p>For me, development is not just about writing code — it’s about creating impact...</p>
-      </section>
-
-      <section>
-        <h2>🌐 Projects & Achievements</h2>
-        <ul>
-          <li>Portfolio Website (React + Tailwind + Framer Motion)</li>
-          <li>E-Commerce Web App with secure payments</li>
-          <li>Cloud-hosted applications on AWS</li>
-          <li>Business-oriented workflow solutions</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>🧩 Personal Philosophy</h2>
-        <p>Continuous learning, collaboration, resilience, creativity, and ethics...</p>
-      </section>
-
-      <section>
-        <h2>📈 Future Goals</h2>
-        <ul>
-          <li>Become a thought leader</li>
-          <li>Master advanced cloud architectures</li>
-          <li>Build scalable enterprise solutions</li>
-          <li>Explore AI & Machine Learning</li>
-          <li>Mentor aspiring developers</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>✨ Closing Statement</h2>
-        <p>In summary, I am Shivam Kumar, a dedicated Java Full Stack Developer with a strong academic foundation in commerce and a passion for building advanced web applications...</p>
-      </section>
-    </main>
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">स</div>
+      <div>
+        <span class="logo-text">SarkariAlert</span>
+        <span class="logo-sub">Live Government Jobs India</span>
+      </div>
+    </div>
+    <div class="header-meta">
+      <span class="live-dot">AI-Powered Live</span>
+      <span id="clock">--:--:--</span>
+    </div>
   </div>
+</header>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© Shivam Kumar | Made with ❤️ and ☕ in India</p>
-  </footer>
+<!-- TICKER (populated after load) -->
+<div class="ticker-bar" id="tickerBar" style="display:none;">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
 
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">🇮🇳 &nbsp;India's fastest government job tracker</p>
+  <h1>Latest <span>Sarkari Naukri</span><br>at your fingertips</h1>
+  <p class="hero-desc">AI-powered search fetches live job notifications from SSC, UPSC, Railway, Banking, Defence and more — updated in real time.</p>
+</section>
+
+<!-- STATS -->
+<div class="stats-row" id="statsRow">
+  <div class="stat-card">
+    <span class="stat-val" id="totalJobs">—</span>
+    <span class="stat-label">Jobs Found</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-val" id="totalVac">—</span>
+    <span class="stat-label">Vacancies</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-val" id="orgCount">—</span>
+    <span class="stat-label">Organisations</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-val" id="lastUpdate">—</span>
+    <span class="stat-label">Last Updated</span>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search jobs, organisations, posts…" oninput="filterJobs()" />
+  </div>
+  <select id="categoryFilter" onchange="filterJobs()">
+    <option value="">All Categories</option>
+    <option value="Central">Central Govt</option>
+    <option value="State">State Govt</option>
+    <option value="PSU">PSU</option>
+    <option value="Banking">Banking</option>
+    <option value="Defence">Defence</option>
+    <option value="Railway">Railway</option>
+  </select>
+  <select id="sortFilter" onchange="filterJobs()">
+    <option value="date">Sort: Latest First</option>
+    <option value="vacancies">Sort: Most Vacancies</option>
+    <option value="deadline">Sort: Deadline Soon</option>
+  </select>
+  <button class="btn btn-primary" id="fetchBtn" onclick="fetchJobs()">
+    ⟳ &nbsp;Refresh Jobs
+  </button>
+</div>
+
+<!-- ERROR BOX -->
+<div class="error-box" id="errorBox" style="display:none;"></div>
+
+<!-- LOADING -->
+<div class="loading-box" id="loadingBox" style="display:none;">
+  <div class="spinner"></div>
+  <div class="loading-text">Searching latest government jobs…</div>
+  <div class="loading-steps">
+    <div class="load-step" id="step1">⬡ Connecting to AI search engine</div>
+    <div class="load-step" id="step2">⬡ Scanning job portals & official sources</div>
+    <div class="load-step" id="step3">⬡ Parsing notifications & vacancies</div>
+    <div class="load-step" id="step4">⬡ Structuring results</div>
+  </div>
+</div>
+
+<!-- JOBS SECTION -->
+<section class="jobs-section" id="jobsSection" style="display:none;">
+  <div class="section-header">
+    <h2 class="section-title">Active Recruitment Notifications</h2>
+    <span class="result-count" id="resultCount">0 results</span>
+  </div>
+  <div class="jobs-grid" id="jobsGrid"></div>
+</section>
+
+<!-- EMPTY STATE -->
+<div class="empty-state" id="emptyState" style="display:none;">
+  <div class="icon">📋</div>
+  <h3>No matching jobs found</h3>
+  <p>Try adjusting your filters or search terms</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Powered by <a href="https://anthropic.com">Anthropic Claude API</a> with live web search &nbsp;·&nbsp; Data sourced from official government portals &nbsp;·&nbsp; <span id="footerDate"></span></p>
+</footer>
+
+<script>
+  /* ===== CLOCK ===== */
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-IN', { hour12: false });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+  document.getElementById('footerDate').textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  let allJobs = [];
+
+  /* ===== LOAD STEP ANIMATION ===== */
+  function animateSteps() {
+    const steps = ['step1','step2','step3','step4'];
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i > 0) document.getElementById(steps[i-1]).className = 'load-step done';
+      if (i < steps.length) {
+        document.getElementById(steps[i]).className = 'load-step active';
+        i++;
+      } else {
+        clearInterval(iv);
+      }
+    }, 1400);
+    return iv;
+  }
+
+  /* ===== FETCH JOBS FROM CLAUDE API ===== */
+  async function fetchJobs() {
+    const btn = document.getElementById('fetchBtn');
+    btn.disabled = true;
+    btn.innerHTML = '⟳ &nbsp;Fetching…';
+
+    document.getElementById('errorBox').style.display = 'none';
+    document.getElementById('jobsSection').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('loadingBox').style.display = 'block';
+
+    // Reset steps
+    ['step1','step2','step3','step4'].forEach(s => {
+      document.getElementById(s).className = 'load-step';
+    });
+    const stepTimer = animateSteps();
+
+    const today = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+
+    const prompt = `Today is ${today}. Search the web and find the 18 most recent and active government job recruitment notifications in India published in the last 30 days. Include results from SSC, UPSC, Railway (RRB), Banking (IBPS, SBI, RBI), Defence (Army, Navy, Airforce, MoD), State PSCs, PSUs like NTPC, ONGC, ISRO, HAL etc.
+
+For each job, return a JSON object. Return ONLY a valid JSON array with no extra text, no markdown, no explanation.
+
+Each object must have exactly these fields:
+- title: string (full post name e.g. "Combined Graduate Level 2024")
+- organization: string (short org name e.g. "SSC", "UPSC", "SBI", "Indian Army")
+- category: one of ["Central","State","PSU","Banking","Defence","Railway"]
+- vacancies: number (use 0 if not mentioned)
+- qualification: string (short e.g. "10th Pass", "Graduate", "B.Tech")
+- location: string (e.g. "All India", "Telangana", "Delhi")
+- applicationStart: string (DD Mon YYYY or "Already Started")
+- lastDate: string (DD Mon YYYY or "Notified Soon")
+- salary: string (e.g. "₹25,500 – ₹81,100" or "As per 7th CPC")
+- applyLink: string (official URL or "#")
+- source: string (where you found it)
+
+Return exactly the JSON array. No preamble, no explanation.`;
+
+    try {
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 4000,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error?.message || `HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+      clearInterval(stepTimer);
+      ['step1','step2','step3','step4'].forEach(s => {
+        document.getElementById(s).className = 'load-step done';
+      });
+
+      // Extract text from response
+      const textBlocks = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+
+      // Parse JSON - strip any markdown fences
+      let jsonStr = textBlocks.replace(/```json|```/g, '').trim();
+      // Find the array
+      const arrStart = jsonStr.indexOf('[');
+      const arrEnd = jsonStr.lastIndexOf(']');
+      if (arrStart === -1 || arrEnd === -1) throw new Error("No JSON array found in response");
+      jsonStr = jsonStr.substring(arrStart, arrEnd + 1);
+
+      allJobs = JSON.parse(jsonStr);
+
+      if (!Array.isArray(allJobs) || allJobs.length === 0) throw new Error("No jobs returned");
+
+      updateStats();
+      buildTicker();
+      filterJobs();
+
+      document.getElementById('loadingBox').style.display = 'none';
+      document.getElementById('jobsSection').style.display = 'block';
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+    } catch (err) {
+      clearInterval(stepTimer);
+      document.getElementById('loadingBox').style.display = 'none';
+      const eb = document.getElementById('errorBox');
+      eb.style.display = 'block';
+      eb.textContent = '⚠ ' + err.message + ' — Please check your network/API key and try again.';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '⟳ &nbsp;Refresh Jobs';
+  }
+
+  /* ===== UPDATE STATS ===== */
+  function updateStats() {
+    document.getElementById('totalJobs').textContent = allJobs.length;
+    const totalVac = allJobs.reduce((s, j) => s + (j.vacancies || 0), 0);
+    document.getElementById('totalVac').textContent = totalVac > 0 ? totalVac.toLocaleString('en-IN') : '—';
+    const orgs = new Set(allJobs.map(j => j.organization));
+    document.getElementById('orgCount').textContent = orgs.size;
+  }
+
+  /* ===== TICKER ===== */
+  function buildTicker() {
+    const bar = document.getElementById('tickerBar');
+    const inner = document.getElementById('tickerInner');
+    const items = allJobs.slice(0, 10).map(j =>
+      `<span class="ticker-item">${j.organization} — ${j.title}${j.vacancies ? ' ('+j.vacancies+' posts)' : ''} | Last Date: ${j.lastDate}</span>`
+    );
+    // Duplicate for seamless scroll
+    inner.innerHTML = items.join('') + items.join('');
+    bar.style.display = 'block';
+  }
+
+  /* ===== FILTER & RENDER ===== */
+  function filterJobs() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const cat = document.getElementById('categoryFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+
+    let jobs = allJobs.filter(j => {
+      const matchSearch = !search ||
+        j.title.toLowerCase().includes(search) ||
+        j.organization.toLowerCase().includes(search) ||
+        (j.location||'').toLowerCase().includes(search);
+      const matchCat = !cat || j.category === cat;
+      return matchSearch && matchCat;
+    });
+
+    if (sort === 'vacancies') {
+      jobs.sort((a, b) => (b.vacancies || 0) - (a.vacancies || 0));
+    } else if (sort === 'deadline') {
+      jobs.sort((a, b) => new Date(a.lastDate) - new Date(b.lastDate));
+    }
+
+    const grid = document.getElementById('jobsGrid');
+    const empty = document.getElementById('emptyState');
+
+    document.getElementById('resultCount').textContent = `${jobs.length} result${jobs.length !== 1 ? 's' : ''}`;
+
+    if (jobs.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      grid.innerHTML = jobs.map((j, i) => buildCard(j, i)).join('');
+    }
+  }
+
+  /* ===== BUILD CARD ===== */
+  function buildCard(j, i) {
+    const catClass = {
+      Central: 'cat-central', State: 'cat-state', PSU: 'cat-psu',
+      Banking: 'cat-banking', Defence: 'cat-defence', Railway: 'cat-railway'
+    }[j.category] || 'cat-central';
+
+    // Deadline urgency
+    let deadlineClass = 'normal', deadlineText = j.lastDate;
+    const dl = new Date(j.lastDate);
+    if (!isNaN(dl)) {
+      const diff = Math.ceil((dl - Date.now()) / 86400000);
+      if (diff <= 0) { deadlineClass = 'urgent'; deadlineText = 'Deadline Passed'; }
+      else if (diff <= 7) { deadlineClass = 'urgent'; deadlineText = `${diff}d left — ${j.lastDate}`; }
+      else if (diff <= 20) { deadlineClass = 'soon'; deadlineText = `${diff}d left — ${j.lastDate}`; }
+      else deadlineText = `Apply by ${j.lastDate}`;
+    }
+
+    const applyUrl = j.applyLink && j.applyLink !== '#' ? j.applyLink : '#';
+    const link = applyUrl !== '#'
+      ? `<a class="apply-link" href="${applyUrl}" target="_blank" rel="noopener">Apply Now →</a>`
+      : `<span class="apply-link" style="opacity:0.4;cursor:default">Apply Link TBA</span>`;
+
+    const vacBadge = j.vacancies > 0
+      ? `<span class="vacancies-pill">${j.vacancies.toLocaleString('en-IN')} posts</span>`
+      : '';
+
+    return `
+    <div class="job-card" style="animation-delay:${i * 0.04}s">
+      <div class="card-top">
+        <span class="org-badge">${esc(j.organization)}</span>
+        <span class="category-tag ${catClass}">${esc(j.category)}</span>
+      </div>
+      <div class="job-title">${esc(j.title)}</div>
+      <div class="job-meta">
+        <span class="meta-item"><span class="meta-icon">📍</span>${esc(j.location||'All India')}</span>
+        <span class="meta-item"><span class="meta-icon">🎓</span>${esc(j.qualification||'See Notification')}</span>
+        <span class="meta-item"><span class="meta-icon">💰</span>${esc(j.salary||'As per Norms')}</span>
+      </div>
+      <div class="card-footer">
+        <span class="deadline ${deadlineClass}">${deadlineText}</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${vacBadge}
+          ${link}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ===== AUTO-FETCH ON LOAD ===== */
+  window.addEventListener('load', () => {
+    setTimeout(fetchJobs, 500);
+  });
+</script>
 </body>
 </html>
