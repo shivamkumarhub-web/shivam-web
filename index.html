@@ -3,237 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sarkari Jobs Hub</title>
+    <title>Sarkari Jobs - Multi-Source Fixed</title>
     <style>
-        :root {
-            --bg: #0c1730;
-            --card-bg: #172454;
-            --accent: #ffd700;
-            --text: #ffffff;
-            --header-bg: #111e40;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding-bottom: 20px;
-        }
-
-        header {
-            padding: 20px;
-            background: var(--header-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        button {
-            padding: 10px 20px;
-            background: var(--accent);
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #000;
-        }
-
-        button:hover {
-            background: #ffec80;
-        }
-
-        #status {
-            text-align: center;
-            padding: 15px;
-            color: #ff9800;
-            font-weight: bold;
-        }
-
-        .jobs-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 5px solid var(--accent);
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.1rem;
-            line-height: 1.4;
-        }
-
-        .meta {
-            font-size: 0.85rem;
-            color: #bdc3c7;
-            margin-bottom: 15px;
-        }
-
-        .source-tag {
-            display: inline-block;
-            background: rgba(255,215,0,0.1);
-            color: var(--accent);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .btn-view {
-            display: inline-block;
-            text-decoration: none;
-            color: #000;
-            background: var(--accent);
-            padding: 8px 15px;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            border: 4px solid rgba(255,255,255,0.1);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border-left-color: var(--accent);
-            animation: spin 1s linear infinite;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: white; margin: 0; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e293b; padding-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: #161e31; padding: 15px; border-radius: 8px; border-top: 4px solid gold; }
+        .card h3 { font-size: 1rem; margin: 0 0 10px 0; color: #facc15; }
+        .tag { background: #1e293b; font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+        .status { color: #94a3b8; text-align: center; margin: 10px; font-weight: bold; }
+        a { display: inline-block; margin-top: 10px; color: white; background: #3b82f6; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; }
+        button { background: gold; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <h2>🇮🇳 Sarkari Hub Live</h2>
-    <div class="controls">
-        <div id="loader" class="spinner"></div>
-        <button onclick="loadAllJobs()">Refresh Jobs</button>
-    </div>
+    <h2>🇮🇳 Sarkari Alert (Fixed)</h2>
+    <button onclick="loadAll()">Refresh Live Jobs</button>
 </header>
 
-<div id="status">Ready to fetch latest updates...</div>
-
-<div class="jobs-container" id="jobs-list">
-    <!-- Jobs will appear here -->
-</div>
+<div id="status" class="status">Click Refresh to start fetching...</div>
+<div id="jobs" class="grid"></div>
 
 <script>
-    const PROXY = "https://allorigins.win";
-    
-    const SOURCES = [
-        { name: "FreeJobAlert", url: "https://freejobalert.com" },
-        { name: "Jagran Josh", url: "https://jagranjosh.com" },
-        { name: "FreshersWorld", url: "https://freshersworld.com" },
-        { name: "CareerJet", url: "https://careerjet.co.in" }
+    // Multiple proxies in case one fails
+    const PROXIES = [
+        "https://allorigins.win",
+        "https://corsproxy.io?"
     ];
 
-    async function fetchFromRSS(source) {
+    const SOURCES = [
+        { name: "Jagran Josh", url: "https://jagranjosh.com" },
+        { name: "Career India", url: "https://www.careerindia.com/rss/feeds/careerindia-fb.xml" },
+        { name: "FreeJobAlert", url: "https://freejobalert.com" }
+    ];
+
+    async function fetchWithRetry(source, proxyIdx = 0) {
+        if (proxyIdx >= PROXIES.length) return []; // All proxies failed
+        
         try {
-            const response = await fetch(PROXY + encodeURIComponent(source.url));
-            if (!response.ok) throw new Error('Network fail');
+            const finalUrl = PROXIES[proxyIdx] + encodeURIComponent(source.url);
+            const res = await fetch(finalUrl);
+            const data = await res.json();
             
-            const data = await response.json();
+            // Handle different proxy response formats
+            const content = data.contents || data; // allorigins uses .contents
             const parser = new DOMParser();
-            const xml = parser.parseFromString(data.contents, "text/xml");
+            const xml = parser.parseFromString(content, "text/xml");
             const items = xml.querySelectorAll("item");
 
-            return Array.from(items).map(item => ({
-                title: item.querySelector("title")?.textContent || "No Title",
-                link: item.querySelector("link")?.textContent || "#",
-                date: item.querySelector("pubDate")?.textContent || new Date().toISOString(),
-                source: source.name
+            return Array.from(items).slice(0, 10).map(item => ({
+                title: item.querySelector("title").textContent,
+                link: item.querySelector("link").textContent,
+                source: source.name,
+                date: item.querySelector("pubDate")?.textContent || "Recently"
             }));
-        } catch (error) {
-            console.error(`Error fetching ${source.name}:`, error);
-            return [];
+        } catch (e) {
+            console.log(`Proxy ${proxyIdx} failed for ${source.name}, trying next...`);
+            return fetchWithRetry(source, proxyIdx + 1);
         }
     }
 
-    async function loadAllJobs() {
-        const container = document.getElementById("jobs-list");
+    async function loadAll() {
+        const btn = document.querySelector('button');
         const status = document.getElementById("status");
-        const loader = document.getElementById("loader");
+        const container = document.getElementById("jobs");
 
-        // UI Reset
-        status.innerText = "Connecting to multiple servers...";
-        loader.style.display = "block";
+        btn.disabled = true;
+        status.innerText = "🔍 Searching multiple websites...";
         container.innerHTML = "";
 
-        // Fetch from all sources in parallel
-        const fetchPromises = SOURCES.map(source => fetchFromRSS(source));
-        const results = await Promise.all(fetchPromises);
-        
-        // Flatten and sort by date
-        const allJobs = results.flat().sort((a, b) => new Date(b.date) - new Date(a.date));
+        const allPromises = SOURCES.map(s => fetchWithRetry(s));
+        const results = await Promise.all(allPromises);
+        const combined = results.flat();
 
-        if (allJobs.length === 0) {
-            status.innerText = "No jobs found. Try again in a moment.";
+        if (combined.length === 0) {
+            status.innerText = "❌ Connection Error. Please check your internet or try again later.";
         } else {
-            status.innerText = `Successfully loaded ${allJobs.length} live openings`;
-            renderJobs(allJobs);
-        }
-        
-        loader.style.display = "none";
-    }
-
-    function renderJobs(jobs) {
-        const container = document.getElementById("jobs-list");
-        container.innerHTML = jobs.map(job => `
-            <div class="card">
-                <div>
-                    <span class="source-tag">${job.source}</span>
-                    <h3>${job.title}</h3>
-                    <div class="meta">
-                        📅 ${new Date(job.date).toLocaleDateString('en-IN', { 
-                            day: 'numeric', 
-                            month: 'short', 
-                            year: 'numeric' 
-                        })}
+            status.innerText = `✅ Found ${combined.length} jobs!`;
+            combined.forEach(job => {
+                container.innerHTML += `
+                    <div class="card">
+                        <span class="tag">${job.source}</span>
+                        <h3>${job.title}</h3>
+                        <small>📅 ${job.date}</small><br>
+                        <a href="${job.link}" target="_blank">Apply Now →</a>
                     </div>
-                </div>
-                <a href="${job.link}" target="_blank" class="btn-view">View Details →</a>
-            </div>
-        `).join('');
+                `;
+            });
+        }
+        btn.disabled = false;
     }
 
-    // Initial Load
-    window.onload = loadAllJobs;
+    // Auto-load on start
+    window.onload = loadAll;
 </script>
-
 </body>
 </html>
