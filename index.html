@@ -29,10 +29,6 @@ header {
   border-radius:10px;
 }
 a { color:gold; }
-select {
-  margin-left:10px;
-  padding:5px;
-}
 </style>
 </head>
 
@@ -40,15 +36,7 @@ select {
 
 <header>
   <h2>🇮🇳 SarkariAlert (Hybrid Mode)</h2>
-  <div>
-    <button onclick="loadJobs()">Refresh</button>
-    <select id="limitSelect" onchange="loadJobs()">
-      <option value="10">10 jobs per source</option>
-      <option value="20">20 jobs per source</option>
-      <option value="50">50 jobs per source</option>
-      <option value="all">All jobs</option>
-    </select>
-  </div>
+  <button onclick="loadJobs()">Refresh</button>
 </header>
 
 <div id="status" style="padding:10px;color:orange;"></div>
@@ -57,16 +45,10 @@ select {
 <script>
 let jobs = [];
 
-/* Helper: apply limit */
-function applyLimit(items, limit) {
-  if (limit === "all") return [...items];
-  return [...items].slice(0, parseInt(limit));
-}
-
 /* ========================= */
 /* FETCH FREEJOBALERT RSS */
 /* ========================= */
-async function fetchRSS(limit) {
+async function fetchRSS() {
   const res = await fetch("https://api.allorigins.win/get?url=" +
     encodeURIComponent("https://www.freejobalert.com/feed/"));
   const data = await res.json();
@@ -74,7 +56,7 @@ async function fetchRSS(limit) {
   const xml = parser.parseFromString(data.contents, "text/xml");
   const items = xml.querySelectorAll("item");
 
-  return applyLimit(items, limit).map(item => ({
+  return [...items].map(item => ({
     title: item.querySelector("title").textContent,
     source: "FreeJobAlert",
     date: item.querySelector("pubDate").textContent,
@@ -85,7 +67,7 @@ async function fetchRSS(limit) {
 /* ========================= */
 /* FETCH SARKARI RESULT (proxy) */
 /* ========================= */
-async function fetchSarkariResult(limit) {
+async function fetchSarkariResult() {
   try {
     const res = await fetch("https://api.allorigins.win/get?url=" +
       encodeURIComponent("https://www.sarkariresult.com/"));
@@ -107,7 +89,7 @@ async function fetchSarkariResult(limit) {
       }
     });
 
-    return applyLimit(jobs, limit);
+    return jobs; // no slice, return all
   } catch {
     return [];
   }
@@ -116,7 +98,7 @@ async function fetchSarkariResult(limit) {
 /* ========================= */
 /* FETCH TIMESJOBS RSS */
 /* ========================= */
-async function fetchTimesJobs(limit) {
+async function fetchTimesJobs() {
   try {
     const res = await fetch("https://api.allorigins.win/get?url=" +
       encodeURIComponent("https://www.timesjobs.com/rssfeed/"));
@@ -125,7 +107,7 @@ async function fetchTimesJobs(limit) {
     const xml = parser.parseFromString(data.contents, "text/xml");
     const items = xml.querySelectorAll("item");
 
-    return applyLimit(items, limit).map(item => ({
+    return [...items].map(item => ({
       title: item.querySelector("title").textContent,
       source: "TimesJobs",
       date: item.querySelector("pubDate").textContent,
@@ -139,7 +121,7 @@ async function fetchTimesJobs(limit) {
 /* ========================= */
 /* FETCH FRESHERSWORLD RSS */
 /* ========================= */
-async function fetchFreshersWorld(limit) {
+async function fetchFreshersWorld() {
   try {
     const res = await fetch("https://api.allorigins.win/get?url=" +
       encodeURIComponent("https://www.freshersworld.com/rss.xml"));
@@ -148,7 +130,7 @@ async function fetchFreshersWorld(limit) {
     const xml = parser.parseFromString(data.contents, "text/xml");
     const items = xml.querySelectorAll("item");
 
-    return applyLimit(items, limit).map(item => ({
+    return [...items].map(item => ({
       title: item.querySelector("title").textContent,
       source: "FreshersWorld",
       date: item.querySelector("pubDate").textContent,
@@ -163,16 +145,15 @@ async function fetchFreshersWorld(limit) {
 /* LOAD ALL SOURCES */
 /* ========================= */
 async function loadJobs() {
-  const limit = document.getElementById("limitSelect").value;
   document.getElementById("status").innerText =
     "Fetching live jobs from multiple sources...";
 
   try {
     const [rss, sr, tj, fw] = await Promise.all([
-      fetchRSS(limit),
-      fetchSarkariResult(limit),
-      fetchTimesJobs(limit),
-      fetchFreshersWorld(limit)
+      fetchRSS(),
+      fetchSarkariResult(),
+      fetchTimesJobs(),
+      fetchFreshersWorld()
     ]);
 
     jobs = [...rss, ...sr, ...tj, ...fw];
