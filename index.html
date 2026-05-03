@@ -2,145 +2,229 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>🔥 SARKARI JOBS - 100% WORKING</title>
+<title>Sarkari Jobs Alert</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body{font-family:Arial;background:#0a0f2b;color:#fff;margin:0;padding:20px 20px 100px}
-header{background:#1a1f3d;padding:20px;text-align:center}
-h1{background:linear-gradient(45deg,gold,#ffed4a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:28px}
-.jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:15px}
-.card{background:#1e2345;padding:20px;border-radius:12px;border-left:4px solid gold;transition:0.3s}
-.card:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(255,215,0,0.3)}
-.title{font-size:16px;font-weight:bold;margin:0 0 10px;line-height:1.4}
-.meta{font-size:13px;color:#ccc;margin:10px 0}
-.apply-btn{background:linear-gradient(45deg,#ff6b35,gold);color:white;padding:8px 16px;border:none;border-radius:20px;cursor:pointer;font-weight:bold;text-decoration:none;display:inline-block}
-#status{padding:15px;background:rgba(255,193,7,0.1);border-radius:8px;margin:20px 0;text-align:center;font-weight:bold}
-footer{position:fixed;bottom:0;left:0;right:0;background:#1a1f3d;padding:15px;text-align:center;font-size:14px}
+body {
+  font-family: Arial, sans-serif;
+  background:#0c1730;
+  color:#fff;
+  margin:0;
+  padding-bottom:80px;
+}
+header {
+  padding:15px;
+  background:#111e40;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+header button {
+  background:gold;
+  color:#0c1730;
+  border:none;
+  padding:8px 16px;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+}
+header button:hover { opacity:0.9; }
+header button:disabled { opacity:0.5; cursor:not-allowed; }
+.jobs {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:15px;
+  padding:20px;
+}
+.card {
+  background:#172454;
+  padding:15px;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.card h3 { margin:0; font-size:16px; line-height:1.4; }
+.card p { margin:0; font-size:14px; opacity:0.8; }
+a { color:gold; text-decoration:none; }
+a:hover { text-decoration:underline; }
+.badge {
+  display:inline-block;
+  background:#0c1730;
+  padding:2px 8px;
+  border-radius:4px;
+  font-size:12px;
+}
+footer {
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#111e40;
+  color:#fff;
+  text-align:center;
+  padding:10px;
+  font-size:14px;
+}
+#status { padding:10px 20px; color:orange; min-height:20px; }
+.loader { color:gold; }
 </style>
 </head>
+
 <body>
 <header>
-<h1>🇮🇳 SARKARI JOBS LIVE</h1>
-<button onclick="loadJobs()" style="background:linear-gradient(45deg,#4ecdc4,#44a08d);color:white;border:none;padding:12px 24px;border-radius:25px;font-weight:bold;cursor:pointer;font-size:16px">🔄 REFRESH NOW</button>
+  <h2>🇮🇳 SarkariAlert (Hybrid Mode)</h2>
+  <button id="refreshBtn" onclick="loadJobs()">Refresh Jobs</button>
 </header>
 
-<div id="status">Loading live jobs...</div>
-<div id="jobs" class="jobs"></div>
-<footer>© 2024 | Real Live Government Jobs</footer>
+<div id="status"></div>
+<div class="jobs" id="jobs"></div>
+
+<footer>
+  © SH1VAM 2026 Sarkari Jobs — All Rights Reserved
+</footer>
 
 <script>
-// 🔥 PRO VERSION - Multiple strategies + Working feeds ONLY
-const WORKING_FEEDS = [
-  // These 100% work RIGHT NOW
-  "https://www.freejobalert.com/feed/",
-  "https://www.sarkariresult.com/feed/", 
-  "https://www.jagranjosh.com/rss/latestjobs.xml",
-  "https://gradeup.co/feed",
-  "https://www.bankersadda.com/feed/"
-];
+const PROXY = "https://api.allorigins.win/get?url=";
 
-// Multiple CORS proxies (backup if one fails)
-const PROXIES = [
-  "https://api.allorigins.win/get?url=",
-  "https://corsproxy.io/?",
-  "https://thingproxy.freeboard.io/fetch/",
-  "https://cors-anywhere.herokuapp.com/"
-];
-
-async function fetchWithProxy(url, proxyIndex = 0) {
-  try {
-    const proxy = PROXIES[proxyIndex];
-    const response = await fetch(proxy + encodeURIComponent(url));
-    if (!response.ok) throw new Error('Failed');
-    return response;
-  } catch {
-    // Try next proxy
-    return proxyIndex < PROXIES.length - 1 ? 
-      fetchWithProxy(url, proxyIndex + 1) : null;
-  }
+function sanitize(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
 }
 
-async function getJobsFromFeed(feedUrl) {
+function formatDate(dateStr) {
+  if (!dateStr) return 'Recently Posted';
+  const d = new Date(dateStr);
+  return isNaN(d) ? 'Recently Posted' : d.toDateString();
+}
+
+async function fetchRSS(url, source) {
   try {
-    const response = await fetchWithProxy(feedUrl);
-    if (!response) return [];
-    
-    const data = await response.json ? response.json() : response.text();
-    const content = data.contents || data;
-    
+    const res = await fetch(PROXY + encodeURIComponent(url));
+    const data = await res.json();
     const parser = new DOMParser();
-    const xml = parser.parseFromString(content, "text/xml");
+    const xml = parser.parseFromString(data.contents, "text/xml");
+    
+    if (xml.querySelector("parsererror")) throw new Error("Invalid XML");
     
     const items = xml.querySelectorAll("item");
-    const jobs = [];
-    
-    for (let item of items) {
-      const title = item.querySelector("title")?.textContent?.trim() || "";
-      const link = item.querySelector("link")?.textContent?.trim() || "#";
-      const date = item.querySelector("pubDate")?.textContent || new Date().toISOString();
-      
-      if (title && (title.toLowerCase().includes('apply') || title.toLowerCase().includes('recruit') || 
-          title.toLowerCase().includes('vacancy') || title.length > 20)) {
-        jobs.push({
-          title: title.slice(0, 100),
-          link,
-          date: new Date(date).toLocaleDateString('en-IN'),
-          source: feedUrl.split('/')[2].replace('www.', '')
-        });
-      }
-    }
-    return jobs.slice(0, 12);
+    return [...items].slice(0, 20).map(item => ({
+      title: item.querySelector("title")?.textContent?.trim() || "No Title",
+      source: source,
+      date: item.querySelector("pubDate")?.textContent,
+      link: item.querySelector("link")?.textContent?.trim()
+    })).filter(job => job.link);
   } catch (e) {
+    console.error(`${source} failed:`, e);
     return [];
   }
 }
 
-async function loadJobs() {
-  document.getElementById('status').innerHTML = '🔄 Fetching from 5 live sources...';
-  
+async function fetchSarkariResult() {
   try {
-    const promises = WORKING_FEEDS.map(getJobsFromFeed);
-    const results = await Promise.all(promises);
+    const res = await fetch(PROXY + encodeURIComponent("https://www.sarkariresult.com/"));
+    const data = await res.json();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data.contents, "text/html");
     
-    let allJobs = results.flat();
+    let jobs = [];
+    const links = doc.querySelectorAll("#post a, .post a");
     
-    // Remove duplicates
-    allJobs = allJobs.filter((job, i, arr) => 
-      arr.findIndex(t => t.title === job.title) === i
-    );
-    
-    // Sort by date
-    allJobs.sort((a,b) => new Date(b.date) - new Date(a.date));
-    
-    renderJobs(allJobs.slice(0, 30));
-    document.getElementById('status').innerHTML = 
-      `✅ ${allJobs.length} LIVE JOBS loaded! Last update: ${new Date().toLocaleTimeString()}`;
-      
-  } catch(e) {
-    document.getElementById('status').innerHTML = '❌ Try refresh button';
+    links.forEach(a => {
+      const text = a.textContent.trim();
+      const href = a.href;
+      // Filter for actual job posts
+      if (text.length > 15 && 
+          href.includes("sarkariresult.com") && 
+          /online|form|apply|admit|result|answer|key/i.test(text)) {
+        jobs.push({
+          title: text,
+          source: "SarkariResult",
+          date: null,
+          link: href
+        });
+      }
+    });
+    return jobs.slice(0, 20);
+  } catch (e) {
+    console.error("SarkariResult failed:", e);
+    return [];
   }
 }
 
-function renderJobs(jobs) {
-  const container = document.getElementById('jobs');
-  if (!jobs.length) {
-    container.innerHTML = '<div class="card" style="text-align:center"><h3>📭 No jobs found</h3><p>Click refresh for latest</p></div>';
+function deduplicateJobs(jobs) {
+  const seen = new Set();
+  return jobs.filter(job => {
+    const key = job.title.toLowerCase().replace(/\s+/g, ' ').trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+async function loadJobs() {
+  const statusEl = document.getElementById("status");
+  const btn = document.getElementById("refreshBtn");
+  const container = document.getElementById("jobs");
+  
+  btn.disabled = true;
+  statusEl.innerHTML = '<span class="loader">Fetching live jobs from multiple sources...</span>';
+  container.innerHTML = "";
+  
+  const sources = [
+    fetchRSS("https://www.freejobalert.com/feed/", "FreeJobAlert"),
+    fetchSarkariResult(),
+    fetchRSS("https://www.timesjobs.com/rssfeed/", "TimesJobs"),
+    fetchRSS("https://www.freshersworld.com/rss.xml", "FreshersWorld")
+  ];
+  
+  // Use allSettled so one failure doesn't kill everything
+  const results = await Promise.allSettled(sources);
+  let allJobs = results
+    .filter(r => r.status === 'fulfilled')
+    .flatMap(r => r.value);
+  
+  allJobs = deduplicateJobs(allJobs);
+  
+  // Sort by date if available, newest first
+  allJobs.sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(b.date) - new Date(a.date);
+  });
+  
+  renderJobs(allJobs);
+  
+  const failedCount = results.filter(r => r.status === 'rejected').length;
+  statusEl.innerText = `Loaded ${allJobs.length} jobs` + 
+    (failedCount ? ` • ${failedCount} source(s) failed` : '');
+  btn.disabled = false;
+}
+
+function renderJobs(list) {
+  const container = document.getElementById("jobs");
+  
+  if (!list.length) {
+    container.innerHTML = `<p style="grid-column:1/-1;text-align:center;opacity:0.7">No jobs found. Try refreshing.</p>`;
     return;
   }
   
-  container.innerHTML = jobs.map(job => `
+  container.innerHTML = list.map(job => `
     <div class="card">
-      <h3 class="title">${job.title}</h3>
-      <div class="meta">
-        🏢 <strong>${job.source}</strong> | 📅 ${job.date}
-      </div>
-      <a href="${job.link}" target="_blank" class="apply-btn">🔗 VIEW & APPLY</a>
+      <h3>${sanitize(job.title)}</h3>
+      <p><span class="badge">🏢 ${sanitize(job.source)}</span></p>
+      <p>📅 ${formatDate(job.date)}</p>
+      <a href="${sanitize(job.link)}" target="_blank" rel="noopener noreferrer">Apply / View →</a>
     </div>
   `).join('');
 }
 
-// Auto load + refresh every 10 min
+// Load on page start
 loadJobs();
-setTimeout(loadJobs, 600000);
 </script>
 </body>
 </html>
