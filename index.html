@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SarkariAlert Live Jobs</title>
+<title>SarkariAlert Hybrid</title>
 
 <style>
 body {
@@ -10,27 +10,23 @@ body {
   background:#0c1730;
   color:#fff;
 }
-
 header {
   padding:15px;
   background:#111e40;
   display:flex;
   justify-content:space-between;
 }
-
 .jobs {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
   gap:15px;
   padding:20px;
 }
-
 .card {
   background:#172454;
   padding:15px;
   border-radius:10px;
 }
-
 a { color:gold; }
 </style>
 </head>
@@ -38,8 +34,8 @@ a { color:gold; }
 <body>
 
 <header>
-  <h2>🇮🇳 SarkariAlert (Live Jobs)</h2>
-  <button onclick="fetchJobs()">Refresh</button>
+  <h2>🇮🇳 SarkariAlert (Hybrid Mode)</h2>
+  <button onclick="loadJobs()">Refresh</button>
 </header>
 
 <div id="status" style="padding:10px;color:orange;"></div>
@@ -47,58 +43,115 @@ a { color:gold; }
 
 <script>
 
+let jobs = [];
+
 /* ========================= */
-/* 🔥 REAL JOB FETCH */
+/* FETCH FREEJOBALERT RSS */
 /* ========================= */
+async function fetchRSS() {
+  const res = await fetch("https://api.allorigins.win/get?url=" +
+    encodeURIComponent("https://www.freejobalert.com/feed/"));
 
-async function fetchJobs() {
+  const data = await res.json();
 
-  document.getElementById("status").innerText = "Fetching live jobs...";
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(data.contents, "text/xml");
 
+  const items = xml.querySelectorAll("item");
+
+  return [...items].slice(0,15).map(item => ({
+    title: item.querySelector("title").textContent,
+    source: "FreeJobAlert",
+    date: item.querySelector("pubDate").textContent,
+    link: item.querySelector("link").textContent
+  }));
+}
+
+/* ========================= */
+/* FETCH SARKARI RESULT (proxy) */
+/* ========================= */
+async function fetchSarkariResult() {
   try {
-
-    // 🔥 Using RSS feed (CORS friendly proxy)
     const res = await fetch("https://api.allorigins.win/get?url=" +
-      encodeURIComponent("https://www.freejobalert.com/feed/"));
+      encodeURIComponent("https://www.sarkariresult.com/"));
 
     const data = await res.json();
 
     const parser = new DOMParser();
-    const xml = parser.parseFromString(data.contents, "text/xml");
+    const doc = parser.parseFromString(data.contents, "text/html");
 
-    const items = xml.querySelectorAll("item");
+    let jobs = [];
 
-    let jobsHTML = "";
+    doc.querySelectorAll("a").forEach(a => {
+      const text = a.textContent.trim();
+      const href = a.href;
 
-    items.forEach((item, index) => {
-
-      if(index > 20) return; // limit 20+
-
-      const title = item.querySelector("title").textContent;
-      const link = item.querySelector("link").textContent;
-      const date = item.querySelector("pubDate").textContent;
-
-      jobsHTML += `
-        <div class="card">
-          <h3>${title}</h3>
-          <p>📅 ${date}</p>
-          <a href="${link}" target="_blank">View Details →</a>
-        </div>
-      `;
+      if (text.length > 20 && text.toLowerCase().includes("apply")) {
+        jobs.push({
+          title: text,
+          source: "SarkariResult",
+          date: new Date(),
+          link: href
+        });
+      }
     });
 
-    document.getElementById("jobs").innerHTML = jobsHTML;
-    document.getElementById("status").innerText = "Live jobs loaded";
+    return jobs.slice(0,15);
 
-  } catch(err) {
+  } catch {
+    return [];
+  }
+}
+
+/* ========================= */
+/* LOAD ALL */
+/* ========================= */
+async function loadJobs() {
+
+  document.getElementById("status").innerText =
+    "Fetching live jobs from multiple sources...";
+
+  try {
+
+    const [rss, sr] = await Promise.all([
+      fetchRSS(),
+      fetchSarkariResult()
+    ]);
+
+    jobs = [...rss, ...sr];
+
+    renderJobs(jobs);
+
+    document.getElementById("status").innerText =
+      `Loaded ${jobs.length} jobs`;
+
+  } catch {
     document.getElementById("status").innerText = "Error loading jobs";
   }
 }
 
-/* AUTO LOAD */
-fetchJobs();
+/* ========================= */
+/* RENDER */
+/* ========================= */
+function renderJobs(list) {
+
+  const container = document.getElementById("jobs");
+  container.innerHTML = "";
+
+  list.forEach(job => {
+    container.innerHTML += `
+      <div class="card">
+        <h3>${job.title}</h3>
+        <p>🏢 ${job.source}</p>
+        <p>📅 ${new Date(job.date).toDateString()}</p>
+        <a href="${job.link}" target="_blank">View →</a>
+      </div>
+    `;
+  });
+}
+
+loadJobs();
 
 </script>
-
 </body>
 </html>
