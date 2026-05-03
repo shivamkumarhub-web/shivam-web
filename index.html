@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SarkariAlert Hybrid</title>
+<title>Sarkari Jobs Alert </title>
 
 <style>
 body {
@@ -53,13 +53,11 @@ async function fetchRSS() {
     encodeURIComponent("https://www.freejobalert.com/feed/"));
 
   const data = await res.json();
-
   const parser = new DOMParser();
   const xml = parser.parseFromString(data.contents, "text/xml");
-
   const items = xml.querySelectorAll("item");
 
-  return [...items].slice(0,15).map(item => ({
+  return [...items].slice(0,10).map(item => ({
     title: item.querySelector("title").textContent,
     source: "FreeJobAlert",
     date: item.querySelector("pubDate").textContent,
@@ -76,16 +74,13 @@ async function fetchSarkariResult() {
       encodeURIComponent("https://www.sarkariresult.com/"));
 
     const data = await res.json();
-
     const parser = new DOMParser();
     const doc = parser.parseFromString(data.contents, "text/html");
 
     let jobs = [];
-
     doc.querySelectorAll("a").forEach(a => {
       const text = a.textContent.trim();
       const href = a.href;
-
       if (text.length > 20 && text.toLowerCase().includes("apply")) {
         jobs.push({
           title: text,
@@ -96,45 +91,87 @@ async function fetchSarkariResult() {
       }
     });
 
-    return jobs.slice(0,15);
-
+    return jobs.slice(0,10);
   } catch {
     return [];
   }
 }
 
 /* ========================= */
-/* LOAD ALL */
+/* FETCH TIMESJOBS RSS */
+/* ========================= */
+async function fetchTimesJobs() {
+  try {
+    const res = await fetch("https://api.allorigins.win/get?url=" +
+      encodeURIComponent("https://www.timesjobs.com/rssfeed/"));
+    const data = await res.json();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(data.contents, "text/xml");
+    const items = xml.querySelectorAll("item");
+
+    return [...items].slice(0,10).map(item => ({
+      title: item.querySelector("title").textContent,
+      source: "TimesJobs",
+      date: item.querySelector("pubDate").textContent,
+      link: item.querySelector("link").textContent
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/* ========================= */
+/* FETCH FRESHERSWORLD RSS */
+/* ========================= */
+async function fetchFreshersWorld() {
+  try {
+    const res = await fetch("https://api.allorigins.win/get?url=" +
+      encodeURIComponent("https://www.freshersworld.com/rss.xml"));
+    const data = await res.json();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(data.contents, "text/xml");
+    const items = xml.querySelectorAll("item");
+
+    return [...items].slice(0,10).map(item => ({
+      title: item.querySelector("title").textContent,
+      source: "FreshersWorld",
+      date: item.querySelector("pubDate").textContent,
+      link: item.querySelector("link").textContent
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/* ========================= */
+/* LOAD ALL SOURCES */
 /* ========================= */
 async function loadJobs() {
-
   document.getElementById("status").innerText =
     "Fetching live jobs from multiple sources...";
 
   try {
-
-    const [rss, sr] = await Promise.all([
+    const [rss, sr, tj, fw] = await Promise.all([
       fetchRSS(),
-      fetchSarkariResult()
+      fetchSarkariResult(),
+      fetchTimesJobs(),
+      fetchFreshersWorld()
     ]);
 
-    jobs = [...rss, ...sr];
-
+    jobs = [...rss, ...sr, ...tj, ...fw];
     renderJobs(jobs);
 
     document.getElementById("status").innerText =
       `Loaded ${jobs.length} jobs`;
-
   } catch {
     document.getElementById("status").innerText = "Error loading jobs";
   }
 }
 
 /* ========================= */
-/* RENDER */
+/* RENDER JOB CARDS */
 /* ========================= */
 function renderJobs(list) {
-
   const container = document.getElementById("jobs");
   container.innerHTML = "";
 
