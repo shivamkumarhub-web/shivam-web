@@ -65,7 +65,7 @@ let jobs = [];
 /* FreeJobAlert RSS */
 async function fetchFreeJobAlert() {
   const res = await fetch("https://api.allorigins.win/get?url=" +
-    encodeURIComponent("https://www.sarkariresult.com/feed/"));
+    encodeURIComponent("https://www.freejobalert.com/feed/"));
   const data = await res.json();
   const parser = new DOMParser();
   const xml = parser.parseFromString(data.contents, "text/xml");
@@ -83,7 +83,7 @@ async function fetchFreeJobAlert() {
 async function fetchSarkariResult() {
   try {
     const res = await fetch("https://api.allorigins.win/get?url=" +
-      encodeURIComponent("https://www.freejobalert.com/feed/"));
+      encodeURIComponent("https://www.sarkariresult.com/feed/"));
     const data = await res.json();
     const parser = new DOMParser();
     const doc = parser.parseFromString(data.contents, "text/html");
