@@ -56,7 +56,7 @@ footer {
 <div class="jobs" id="jobs"></div>
 
 <footer>
-  © 2026 SarkariAlert — All Rights Reserved
+  © SH1VAM 2026 Sarkari Jobs — All Rights Reserved
 </footer>
 
 <script>
@@ -65,7 +65,7 @@ let jobs = [];
 /* FreeJobAlert RSS */
 async function fetchRSS() {
   const res = await fetch("https://api.allorigins.win/get?url=" +
-    encodeURIComponent("https://www.freejobalert.com/feed/"));
+    encodeURIComponent("https://www.sarkariresult.com/"));
   const data = await res.json();
   const parser = new DOMParser();
   const xml = parser.parseFromString(data.contents, "text/xml");
@@ -73,7 +73,7 @@ async function fetchRSS() {
 
   return [...items].map(item => ({
     title: item.querySelector("title").textContent,
-    source: "FreeJobAlert",
+    source: "Sarkari Result",
     date: item.querySelector("pubDate").textContent,
     link: item.querySelector("link").textContent
   }));
@@ -83,7 +83,7 @@ async function fetchRSS() {
 async function fetchSarkariResult() {
   try {
     const res = await fetch("https://api.allorigins.win/get?url=" +
-      encodeURIComponent("https://www.sarkariresult.com/"));
+      encodeURIComponent("https://www.freejobalert.com/feed/"));
     const data = await res.json();
     const parser = new DOMParser();
     const doc = parser.parseFromString(data.contents, "text/html");
