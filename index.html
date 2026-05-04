@@ -3,195 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <title>Sarkari Jobs Alert</title>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  
-
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
-body {
-  font-family: Arial;
-  background:#0c1730;
-  color:#fff;
-  margin:0;
-  padding-bottom:80px; /* space for footer */
-}
-header {
-  padding:15px;
-  background:#111e40;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.jobs {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:15px;
-  padding:20px;
-}
-.card {
-  background:#172454;
-  padding:15px;
-  border-radius:10px;
-}
-a { color:gold; }
-footer {
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#111e40;
-  color:#fff;
-  text-align:center;
-  padding:10px;
-  font-size:14px;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #0c1730; color: #fff; padding-bottom: 80px; }
+header { padding: 15px 20px; background: #111e40; display: flex; justify-content: space-between; align-items: center; }
+header h2 { font-size: 18px; }
+button { background: #1a3a6e; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+button:hover { background: #264d8e; }
+#status { padding: 10px 20px; color: orange; font-size: 13px; min-height: 28px; }
+.source-status { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 10px; }
+.badge { font-size: 12px; padding: 3px 10px; border-radius: 12px; background: #172454; }
+.badge.ok  { color: #4caf50; }
+.badge.err { color: #f44336; }
+.badge.loading { color: orange; }
+.filters { padding: 0 20px 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-btn { background: #172454; color: #aac; border: 1px solid #264; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; }
+.filter-btn.active { background: #264d8e; color: #fff; border-color: #4a8; }
+.jobs { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 20px; }
+.card { background: #172454; padding: 15px; border-radius: 10px; border-left: 3px solid #264d8e; }
+.card h3 { font-size: 14px; margin-bottom: 8px; line-height: 1.4; }
+.card p  { font-size: 12px; color: #8899cc; margin: 3px 0; }
+.card a  { color: gold; font-size: 13px; text-decoration: none; }
+.card a:hover { text-decoration: underline; }
+.empty { padding: 40px; text-align: center; color: #8899cc; }
+footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #111e40; color: #aaa; text-align: center; padding: 10px; font-size: 13px; }
+.follow { padding: 10px 20px 20px; }
 </style>
 </head>
-
 <body>
 
 <header>
-  <h2>🇮🇳 SarkariAlert (Hybrid Mode)</h2>
-  <button onclick="loadJobs()">Refresh</button>
+  <h2>🇮🇳 SarkariAlert</h2>
+  <button onclick="loadJobs()">🔄 Refresh</button>
 </header>
 
-<div id="status" style="padding:10px;color:orange;"></div>
+<div id="status">Initialising...</div>
+<div class="source-status" id="source-status"></div>
+<div class="filters" id="filters"></div>
 <div class="jobs" id="jobs"></div>
 
-<footer>
-  © SH1VAM 2026 Sarkari Jobs — All Rights Reserved
-</footer>
+<div class="follow">
+  <h2>Follow us:</h2>
+  <i class="fa fa-instagram" style="font-size:36px; color:#C13584;"></i>
+  Instagram: <a href="https://www.instagram.com/sh1vamking/?hl=en"><h3>Click me</h3></a>
+</div>
+
+<footer>© SH1VAM 2026 Sarkari Jobs — All Rights Reserved</footer>
 
 <script>
-let jobs = [];
+const RSS2JSON = "https://api.rss2json.com/v1/api.json?rss_url=";
 
-/* FreeJobAlert RSS */
-async function fetchFreeJobAlert() {
-  const res = await fetch("https://api.allorigins.win/get?url=" +
-    encodeURIComponent("https://www.freejobalert.com/feed/"));
-  const data = await res.json();
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(data.contents, "text/xml");
-  const items = xml.querySelectorAll("item");
+const SOURCES = [
+  { name: "FreeJobAlert",   url: "https://www.freejobalert.com/feed/" },
+  { name: "SarkariJobFind", url: "https://www.sarkarijobfind.com/feed/" },
+  { name: "RojgarResult",   url: "https://www.rojgarresult.com/feed/" },
+  { name: "GovtJobGuru",    url: "https://www.govtjobguru.in/feed/" },
+  { name: "SarkariExam",    url: "https://www.sarkariexam.com/feed/" }
+];
 
-  return [...items].map(item => ({
-    title: item.querySelector("title").textContent,
-    source: "FreeJobAlert",
-    date: item.querySelector("pubDate").textContent,
-    link: item.querySelector("link").textContent
-  }));
+let allJobs = [];
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-/* SarkariResult */
-async function fetchSarkariResult() {
-  try {
-    const res = await fetch("https://api.allorigins.win/get?url=" +
-      encodeURIComponent("https://www.sarkariresult.com/"));
-    const data = await res.json();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(data.contents, "text/html");
-
-    let jobs = [];
-    doc.querySelectorAll("a").forEach(a => {
-      const text = a.textContent.trim();
-      const href = a.href;
-      if (text.length > 20 && text.toLowerCase().includes("apply")) {
-        jobs.push({
-          title: text,
-          source: "SarkariResult",
-          date: new Date(),
-          link: href
-        });
-      }
-    });
-    return jobs;
-  } catch {
-    return [];
+function setBadge(name, state) {
+  const id = "badge-" + name.replace(/\s/g,"_");
+  let el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement("span");
+    el.id = id;
+    document.getElementById("source-status").appendChild(el);
   }
+  const icons = { ok: "✓ ", err: "✗ ", loading: "… " };
+  el.className = "badge " + state;
+  el.textContent = (icons[state] || "") + name;
 }
 
-/* TimesJobs RSS */
-async function fetchTimesJobs() {
+async function fetchFeed(source) {
+  setBadge(source.name, "loading");
   try {
-    const res = await fetch("https://api.allorigins.win/get?url=" +
-      encodeURIComponent("https://www.timesjobs.com/rssfeed/"));
-    const data = await res.json();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(data.contents, "text/xml");
-    const items = xml.querySelectorAll("item");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(
+      RSS2JSON + encodeURIComponent(source.url),
+      { signal: controller.signal }
+    ).finally(() => clearTimeout(timer));
+    if (!res.ok) throw new Error("HTTP " + res.status);
 
-    return [...items].map(item => ({
-      title: item.querySelector("title").textContent,
-      source: "TimesJobs",
-      date: item.querySelector("pubDate").textContent,
-      link: item.querySelector("link").textContent
+    const data = await res.json();
+    if (data.status !== "ok") throw new Error(data.message || "Feed error");
+    if (!data.items || !data.items.length) throw new Error("No items");
+
+    setBadge(source.name, "ok");
+    return data.items.slice(0, 20).map(item => ({
+      title: item.title || "No title",
+      source: source.name,
+      date:  item.pubDate || "",
+      link:  item.link || "#"
     }));
-  } catch {
+  } catch (e) {
+    console.warn("[" + source.name + "]", e.message);
+    setBadge(source.name, "err");
     return [];
   }
 }
 
-/* FreshersWorld RSS */
-async function fetchFreshersWorld() {
-  try {
-    const res = await fetch("https://api.allorigins.win/get?url=" +
-      encodeURIComponent("https://www.freshersworld.com/rss.xml"));
-    const data = await res.json();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(data.contents, "text/xml");
-    const items = xml.querySelectorAll("item");
-
-    return [...items].map(item => ({
-      title: item.querySelector("title").textContent,
-      source: "FreshersWorld",
-      date: item.querySelector("pubDate").textContent,
-      link: item.querySelector("link").textContent
-    }));
-  } catch {
-    return [];
-  }
-}
-
-/* Load all sources */
-async function loadJobs() {
-  document.getElementById("status").innerText =
-    "Fetching live jobs from multiple sources...";
-  try {
-    const [fja, sr, tj, fw] = await Promise.all([
-      fetchFreeJobAlert(),
-      fetchSarkariResult(),
-      fetchTimesJobs(),
-      fetchFreshersWorld()
-    ]);
-    jobs = [...fja, ...sr, ...tj, ...fw];
-    renderJobs(jobs);
-    document.getElementById("status").innerText =
-      `Loaded ${jobs.length} jobs`;
-  } catch {
-    document.getElementById("status").innerText = "Error loading jobs";
-  }
-}
-
-/* Render job cards */
 function renderJobs(list) {
   const container = document.getElementById("jobs");
-  container.innerHTML = "";
-  list.forEach(job => {
-    container.innerHTML += `
-      <div class="card">
-        <h3>${job.title}</h3>
-        <p>🏢 ${job.source}</p>
-        <p>📅 ${new Date(job.date).toDateString()}</p>
-        <a href="${job.link}" target="_blank">View →</a>
-      </div>
-    `;
+  if (!list.length) {
+    container.innerHTML = '<div class="empty">No jobs loaded yet. Try refreshing.</div>';
+    return;
+  }
+  container.innerHTML = list.map(job => `
+    <div class="card">
+      <h3>${esc(job.title)}</h3>
+      <p>🏢 ${esc(job.source)}</p>
+      <p>📅 ${job.date ? new Date(job.date).toDateString() : "—"}</p>
+      <a href="${esc(job.link)}" target="_blank" rel="noopener">View →</a>
+    </div>
+  `).join("");
+}
+
+function buildFilters() {
+  const filtersEl = document.getElementById("filters");
+  filtersEl.innerHTML = "";
+  const sources = [...new Set(allJobs.map(j => j.source))];
+  if (sources.length < 2) return;
+
+  const allBtn = document.createElement("button");
+  allBtn.className = "filter-btn active";
+  allBtn.textContent = "All (" + allJobs.length + ")";
+  allBtn.onclick = () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    allBtn.classList.add("active");
+    renderJobs(allJobs);
+  };
+  filtersEl.appendChild(allBtn);
+
+  sources.forEach(src => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn";
+    btn.textContent = src + " (" + allJobs.filter(j => j.source === src).length + ")";
+    btn.onclick = () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderJobs(allJobs.filter(j => j.source === src));
+    };
+    filtersEl.appendChild(btn);
   });
+}
+
+async function loadJobs() {
+  allJobs = [];
+  document.getElementById("jobs").innerHTML = "";
+  document.getElementById("source-status").innerHTML = "";
+  document.getElementById("filters").innerHTML = "";
+  document.getElementById("status").textContent =
+    "Fetching from " + SOURCES.length + " sources...";
+
+  const results = await Promise.allSettled(SOURCES.map(s => fetchFeed(s)));
+  results.forEach(r => {
+    if (r.status === "fulfilled") allJobs.push(...r.value);
+  });
+
+  allJobs.sort((a, b) => {
+    const da = a.date ? +new Date(a.date) : 0;
+    const db = b.date ? +new Date(b.date) : 0;
+    return db - da;
+  });
+
+  const working = results.filter(r => r.status === "fulfilled" && r.value.length > 0).length;
+  document.getElementById("status").textContent =
+    "Loaded " + allJobs.length + " jobs from " + working + "/" + SOURCES.length + " sources";
+
+  buildFilters();
+  renderJobs(allJobs);
 }
 
 loadJobs();
 </script>
-
-  <h2>Follow us:-</h2>
-  <i class="fa fa-instagram" style="font-size:36px; color:#C13584;"></i> Instagram: <a href="https://www.instagram.com/sh1vamking/?hl=en"><h3>Click me</h3></a> 
+<h3>Email: shivamkumarhub@gmail.com</h3>
+  <p>this website is owned by @SHIVAM do not go out of your way to hate anyone</p>
 </body>
 </html>
