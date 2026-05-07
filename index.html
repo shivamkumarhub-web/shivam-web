@@ -1,75 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Sarkari Jobs Alert</title>
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; background: #0c1730; color: #fff; padding-bottom: 80px; }
-header { padding: 15px 20px; background: #111e40; display: flex; justify-content: space-between; align-items: center; }
-header h2 { font-size: 18px; }
-button { background: #1a3a6e; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-button:hover { background: #264d8e; }
-#status { padding: 10px 20px; color: orange; font-size: 13px; min-height: 28px; }
-.source-status { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 10px; }
-.badge { font-size: 12px; padding: 3px 10px; border-radius: 12px; background: #172454; }
-.badge.ok  { color: #4caf50; }
-.badge.err { color: #f44336; }
-.badge.loading { color: orange; }
-.filters { padding: 0 20px 15px; display: flex; flex-wrap: wrap; gap: 8px; }
-.filter-btn { background: #172454; color: #aac; border: 1px solid #264; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; }
-.filter-btn.active { background: #264d8e; color: #fff; border-color: #4a8; }
-.jobs { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 20px; }
-.card { background: #172454; padding: 15px; border-radius: 10px; border-left: 3px solid #264d8e; }
-.card h3 { font-size: 14px; margin-bottom: 8px; line-height: 1.4; }
-.card p  { font-size: 12px; color: #8899cc; margin: 3px 0; }
-.card a  { color: gold; font-size: 13px; text-decoration: none; }
-.card a:hover { text-decoration: underline; }
-.empty { padding: 40px; text-align: center; color: #8899cc; }
-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #111e40; color: #aaa; text-align: center; padding: 10px; font-size: 13px; }
-.follow { padding: 10px 20px 20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarkari Jobs Alert - SH1VAM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #0c1730; 
+            color: #fff; 
+            padding-bottom: 80px; 
+            line-height: 1.6;
+        }
+        
+        header { 
+            padding: 20px; 
+            background: #111e40; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-bottom: 2px solid #1a3a6e;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Form Styling */
+        .auth-card {
+            background: #172454;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 450px;
+            margin: 40px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .form-title { text-align: center; margin-bottom: 20px; color: gold; }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 12px;
+            color: #8899cc;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px 10px 10px 35px;
+            border-radius: 6px;
+            border: 1px solid #264d8e;
+            background: #0c1730;
+            color: white;
+        }
+
+        .btn {
+            background: #7b2cbf;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn:hover { background: #9d4edd; }
+
+        /* Job Section Styling */
+        #status { padding: 15px; color: gold; text-align: center; font-weight: bold; }
+        
+        .source-status { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
+        
+        .badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: #111e40; border: 1px solid #264d8e; }
+        .badge.ok { color: #4caf50; border-color: #4caf50; }
+        .badge.err { color: #f44336; border-color: #f44336; }
+        .badge.loading { color: orange; }
+
+        .filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        
+        .filter-btn { 
+            background: #172454; color: #aac; border: 1px solid #264d8e; 
+            padding: 6px 15px; border-radius: 20px; cursor: pointer; 
+        }
+        .filter-btn.active { background: gold; color: #0c1730; font-weight: bold; }
+
+        .jobs-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; 
+        }
+
+        .card { 
+            background: #172454; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border-top: 4px solid gold;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { font-size: 15px; margin-bottom: 10px; height: 45px; overflow: hidden; }
+        .card p { font-size: 13px; color: #8899cc; }
+        .card a { 
+            display: inline-block; margin-top: 15px; color: gold; 
+            text-decoration: none; font-weight: bold; 
+        }
+
+        footer { 
+            position: fixed; bottom: 0; width: 100%; 
+            background: #111e40; padding: 15px; 
+            text-align: center; font-size: 12px; border-top: 1px solid #264d8e;
+        }
+
+        .social-section { text-align: center; padding: 40px; background: #111e40; margin-top: 40px; }
+    </style>
 </head>
 <body>
 
 <header>
-  <h2>🇮🇳 SarkariAlert</h2>
-  <button onclick="loadJobs()">🔄 Refresh</button>
+    <h2>🇮🇳 SarkariAlert</h2>
+    <button class="btn" style="width: auto; padding: 8px 20px;" onclick="loadJobs()">🔄 Refresh Jobs</button>
 </header>
 
-<div id="status">Initialising...</div>
-<div class="source-status" id="source-status"></div>
-<div class="filters" id="filters"></div>
-<div class="jobs" id="jobs"></div>
+<div class="container">
+    <div class="auth-card">
+        <h2 class="form-title">Join SarkariAlert</h2>
+        <form action="#">
+            <div class="input-group">
+                <i class="fa fa-user"></i>
+                <input type="text" placeholder="Full Name" required>
+            </div>
+            <div class="input-group">
+                <i class="fa fa-envelope"></i>
+                <input type="email" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+        <p style="text-align: center; margin-top: 15px; font-size: 13px;">
+            Already have an account? <a href="#" style="color: gold;">Sign In</a>
+        </p>
+    </div>
 
-<div class="follow">
-  <h2>Follow us:</h2>
-  <i class="fa fa-instagram" style="font-size:36px; color:#C13584;"></i>
-  Instagram: <a href="https://www.instagram.com/sh1vamking/?hl=en"><h3>Click me</h3></a>
+    <hr style="border: 0; border-top: 1px solid #264d8e; margin: 40px 0;">
+
+    <div id="status">Ready to fetch latest jobs...</div>
+    <div class="source-status" id="source-status"></div>
+    <div class="filters" id="filters"></div>
+    <div class="jobs-grid" id="jobs"></div>
 </div>
 
-<footer>© SH1VAM 2026 Sarkari Jobs — All Rights Reserved</footer>
+<div class="social-section">
+    <h3>Follow for Daily Updates</h3>
+    <div style="margin-top: 15px;">
+        <a href="https://www.instagram.com/sh1vamking/" style="color: #E1306C; font-size: 30px; margin: 0 15px;"><i class="fab fa-instagram"></i></a>
+        <a href="#" style="color: #1DA1F2; font-size: 30px; margin: 0 15px;"><i class="fab fa-twitter"></i></a>
+        <a href="#" style="color: #FF0000; font-size: 30px; margin: 0 15px;"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p style="margin-top: 20px; color: #8899cc;">Contact: shivamkumarhub@gmail.com</p>
+</div>
+
+<footer>
+    © 2026 SH1VAM - Sarkari Jobs Portal — All Rights Reserved
+</footer>
 
 <script>
 const RSS2JSON = "https://api.rss2json.com/v1/api.json?rss_url=";
 
 const SOURCES = [
   { name: "FreeJobAlert",   url: "https://www.freejobalert.com/feed/" },
-  { name: "SarkariJobFind", url: "https://www.sarkarijobfind.com/feed/" },
-  { name: "RojgarResult",   url: "https://www.rojgarresult.com/feed/" },
-  { name: "GovtJobGuru",    url: "https://www.govtjobguru.in/feed/" },
+  { name: "SarkariResult",  url: "https://www.sarkariresult.com/feed/" },
+  { name: "IndGovtJobs",    url: "https://www.indgovtjobs.in/feeds/posts/default?alt=rss" }, 
+  { name: "SarkariNaukri",  url: "https://www.sarkarinaukriblog.com/feed/" },
   { name: "SarkariExam",    url: "https://www.sarkariexam.com/feed/" }
 ];
 
 let allJobs = [];
-
-function esc(s) {
-  return String(s)
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
 
 function setBadge(name, state) {
   const id = "badge-" + name.replace(/\s/g,"_");
@@ -79,35 +201,30 @@ function setBadge(name, state) {
     el.id = id;
     document.getElementById("source-status").appendChild(el);
   }
-  const icons = { ok: "✓ ", err: "✗ ", loading: "… " };
+  const icons = { ok: "● ", err: "× ", loading: "○ " };
   el.className = "badge " + state;
-  el.textContent = (icons[state] || "") + name;
+  el.textContent = icons[state] + name;
 }
 
 async function fetchFeed(source) {
   setBadge(source.name, "loading");
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-    const res = await fetch(
-      RSS2JSON + encodeURIComponent(source.url),
-      { signal: controller.signal }
-    ).finally(() => clearTimeout(timer));
-    if (!res.ok) throw new Error("HTTP " + res.status);
-
-    const data = await res.json();
-    if (data.status !== "ok") throw new Error(data.message || "Feed error");
-    if (!data.items || !data.items.length) throw new Error("No items");
+    // Adding &count=100 to bypass the default 10-item limit of rss2json
+    const response = await fetch(RSS2JSON + encodeURIComponent(source.url) + "&count=100");
+    const data = await response.json();
+    
+    if (data.status !== "ok") throw new Error("Feed error");
 
     setBadge(source.name, "ok");
-    return data.items.slice(0, 20).map(item => ({
-      title: item.title || "No title",
+    
+    // Returns up to 100 items if available from the source
+    return data.items.map(item => ({
+      title: item.title,
       source: source.name,
-      date:  item.pubDate || "",
-      link:  item.link || "#"
+      date: item.pubDate,
+      link: item.link
     }));
   } catch (e) {
-    console.warn("[" + source.name + "]", e.message);
     setBadge(source.name, "err");
     return [];
   }
@@ -115,16 +232,12 @@ async function fetchFeed(source) {
 
 function renderJobs(list) {
   const container = document.getElementById("jobs");
-  if (!list.length) {
-    container.innerHTML = '<div class="empty">No jobs loaded yet. Try refreshing.</div>';
-    return;
-  }
   container.innerHTML = list.map(job => `
     <div class="card">
-      <h3>${esc(job.title)}</h3>
-      <p>🏢 ${esc(job.source)}</p>
-      <p>📅 ${job.date ? new Date(job.date).toDateString() : "—"}</p>
-      <a href="${esc(job.link)}" target="_blank" rel="noopener">View →</a>
+      <h3>${job.title}</h3>
+      <p><i class="fa fa-building"></i> ${job.source}</p>
+      <p><i class="fa fa-calendar"></i> ${new Date(job.date).toDateString()}</p>
+      <a href="${job.link}" target="_blank">View Details <i class="fa fa-arrow-right"></i></a>
     </div>
   `).join("");
 }
@@ -132,62 +245,48 @@ function renderJobs(list) {
 function buildFilters() {
   const filtersEl = document.getElementById("filters");
   filtersEl.innerHTML = "";
-  const sources = [...new Set(allJobs.map(j => j.source))];
-  if (sources.length < 2) return;
+  const uniqueSources = [...new Set(allJobs.map(j => j.source))];
 
-  const allBtn = document.createElement("button");
-  allBtn.className = "filter-btn active";
-  allBtn.textContent = "All (" + allJobs.length + ")";
-  allBtn.onclick = () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-    allBtn.classList.add("active");
-    renderJobs(allJobs);
-  };
-  filtersEl.appendChild(allBtn);
-
-  sources.forEach(src => {
+  const createBtn = (label, count, filterFn, active = false) => {
     const btn = document.createElement("button");
-    btn.className = "filter-btn";
-    btn.textContent = src + " (" + allJobs.filter(j => j.source === src).length + ")";
+    btn.className = "filter-btn" + (active ? " active" : "");
+    btn.textContent = `${label} (${count})`;
     btn.onclick = () => {
-      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderJobs(allJobs.filter(j => j.source === src));
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderJobs(allJobs.filter(filterFn));
     };
     filtersEl.appendChild(btn);
+  };
+
+  createBtn("All Jobs", allJobs.length, () => true, true);
+  uniqueSources.forEach(src => {
+    const count = allJobs.filter(j => j.source === src).length;
+    createBtn(src, count, j => j.source === src);
   });
 }
 
 async function loadJobs() {
   allJobs = [];
-  document.getElementById("jobs").innerHTML = "";
-  document.getElementById("source-status").innerHTML = "";
-  document.getElementById("filters").innerHTML = "";
-  document.getElementById("status").textContent =
-    "Fetching from " + SOURCES.length + " sources...";
+  document.getElementById("jobs").innerHTML = "<p style='text-align:center; width:100%;'>Searching for latest vacancies...</p>";
+  document.getElementById("status").textContent = "Connecting to government servers...";
 
   const results = await Promise.allSettled(SOURCES.map(s => fetchFeed(s)));
+  
   results.forEach(r => {
     if (r.status === "fulfilled") allJobs.push(...r.value);
   });
 
-  allJobs.sort((a, b) => {
-    const da = a.date ? +new Date(a.date) : 0;
-    const db = b.date ? +new Date(b.date) : 0;
-    return db - da;
-  });
+  // Sort by newest date first
+  allJobs.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const working = results.filter(r => r.status === "fulfilled" && r.value.length > 0).length;
-  document.getElementById("status").textContent =
-    "Loaded " + allJobs.length + " jobs from " + working + "/" + SOURCES.length + " sources";
-
+  document.getElementById("status").textContent = `Found ${allJobs.length} Recent Job Openings`;
   buildFilters();
   renderJobs(allJobs);
 }
 
+// Initial Load
 loadJobs();
 </script>
-<h3>Email: shivamkumarhub@gmail.com</h3>
-  <p>this website is owned by @SHIVAM do not go out of your way to hate anyone</p>
 </body>
 </html>
