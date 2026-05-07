@@ -1,166 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SarkariAlert 2026 - 100+ Live Jobs</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0c1730; color: #fff; padding-bottom: 80px; }
-        
-        header { 
-            padding: 20px; background: #111e40; display: flex; 
-            justify-content: space-between; align-items: center;
-            border-bottom: 2px solid gold; position: sticky; top: 0; z-index: 1000;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SarkariAlert - 100+ Live Jobs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0c1730; color: #fff; padding-bottom: 80px; }
+    
+    header { 
+      padding: 20px; background: #111e40; display: flex; 
+      justify-content: space-between; align-items: center;
+      border-bottom: 2px solid gold; position: sticky; top: 0; z-index: 1000;
+    }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-        /* Refresh & Counter */
-        .header-tools { display: flex; align-items: center; gap: 15px; }
-        .job-count-badge { background: gold; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-        
-        .refresh-btn { 
-            background: #1a3a6e; color: white; border: 1px solid gold; 
-            padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: 0.3s;
-        }
-        .refresh-btn:hover { background: gold; color: #000; }
+    .header-tools { display: flex; align-items: center; gap: 15px; }
+    .job-count-badge { background: gold; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; }
+    
+    .refresh-btn { 
+      background: #1a3a6e; color: white; border: 1px solid gold; 
+      padding: 8px 16px; border-radius: 6px; cursor: pointer;
+    }
 
-        /* Status Section */
-        .source-status { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; justify-content: center; }
-        .badge { font-size: 11px; padding: 4px 10px; border-radius: 4px; background: #172454; border: 1px solid #264d8e; }
-        .badge.ok { color: #4caf50; }
-        .badge.loading { color: orange; }
+    #status-msg { text-align: center; padding: 10px; color: gold; font-weight: bold; min-height: 40px; }
 
-        /* Grid Layout */
-        .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        
-        .card { 
-            background: #172454; padding: 20px; border-radius: 12px; 
-            border-top: 4px solid gold; transition: 0.3s; height: 100%;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .card:hover { transform: translateY(-5px); background: #1e2d66; }
-        .card h3 { font-size: 15px; margin-bottom: 12px; color: #fff; line-height: 1.4; }
-        .card .meta { font-size: 12px; color: #8899cc; margin-bottom: 15px; }
-        
-        .view-link { 
-            text-align: center; background: gold; color: #000; 
-            padding: 10px; border-radius: 6px; text-decoration: none; 
-            font-weight: bold; font-size: 13px;
-        }
+    .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    
+    .card { 
+      background: #172454; padding: 20px; border-radius: 12px; 
+      border-left: 5px solid gold; transition: 0.3s;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .card:hover { transform: scale(1.02); background: #1e2d66; }
+    .card h3 { font-size: 15px; margin-bottom: 12px; line-height: 1.4; color: #fff; }
+    .card .source-tag { font-size: 12px; color: gold; font-weight: bold; margin-bottom: 10px; display: block; }
+    
+    .view-link { 
+      text-align: center; background: gold; color: #000; 
+      padding: 10px; border-radius: 6px; text-decoration: none; 
+      font-weight: bold; margin-top: 15px;
+    }
 
-        footer { position: fixed; bottom: 0; width: 100%; background: #111e40; padding: 15px; text-align: center; font-size: 12px; color: #aaa; }
-    </style>
+    footer { position: fixed; bottom: 0; width: 100%; background: #111e40; padding: 15px; text-align: center; font-size: 12px; border-top: 1px solid #264d8e; }
+  </style>
 </head>
 <body>
 
 <header>
-    <h2>🇮🇳 SarkariAlert</h2>
-    <div class="header-tools">
-        <div class="job-count-badge" id="total-count">0 Jobs</div>
-        <button class="refresh-btn" onclick="loadJobs()"><i class="fa fa-sync"></i> Refresh</button>
-    </div>
+  <h2>🇮🇳 SarkariAlert</h2>
+  <div class="header-tools">
+    <div class="job-count-badge" id="total-count">0 Jobs</div>
+    <button class="refresh-btn" onclick="loadJobs()"><i class="fa fa-sync"></i> Refresh</button>
+  </div>
 </header>
 
 <div class="container">
-    <div class="source-status" id="source-status"></div>
-    <div class="jobs-grid" id="jobs">
-        </div>
+  <div id="status-msg">Initializing Connection...</div>
+  <div class="jobs-grid" id="jobs"></div>
 </div>
 
-<div style="text-align:center; padding: 40px; opacity: 0.6;">
-    <p>Data provided by @SHIVAM Job-Engine v2.0</p>
-    <p>Contact: shivamkumarhub@gmail.com</p>
-</div>
-
-<footer>© 2026 SarkariAlert — All India Govt Job Aggregator</footer>
+<footer>© 2026 SH1VAM Job Portal — Contact: shivamkumarhub@gmail.com</footer>
 
 <script>
-// Logic to get 100+ jobs: 
-// 1. Combine 6 reliable sources.
-// 2. Use the 'count=50' parameter (rss2json allows up to 50 on some feeds).
-const RSS2JSON = "https://api.rss2json.com/v1/api.json?rss_url=";
-
+// Reliable RSS Feeds
 const SOURCES = [
-    { name: "FreeJobAlert", url: "https://www.freejobalert.com/feed/" },
-    { name: "SarkariResult", url: "https://www.sarkariresult.com/feed/" },
-    { name: "IndGovtJobs", url: "https://www.indgovtjobs.in/feeds/posts/default?alt=rss" },
-    { name: "SarkariNaukri", url: "https://www.sarkarinaukriblog.com/feed/" },
-    { name: "EmploymentNews", url: "https://employmentnews.gov.in/RSS_Feed.aspx" },
-    { name: "RojgarResult", url: "https://www.rojgarresult.com/feed/" }
+  { name: "FreeJobAlert", url: "https://www.freejobalert.com/feed/" },
+  { name: "Sarkari Result", url: "https://www.sarkariresult.com/feed/" },
+  { name: "Ind Govt Jobs", url: "https://www.indgovtjobs.in/feeds/posts/default?alt=rss" },
+  { name: "Sarkari Exam", url: "https://www.sarkariexam.com/feed/" },
+  { name: "Rojgar Result", url: "https://www.rojgarresult.com/feed/" }
 ];
 
 let allJobs = [];
 
-function setBadge(name, state) {
-    const id = "badge-" + name.replace(/\s/g,"_");
-    let el = document.getElementById(id);
-    if (!el) {
-        el = document.createElement("span");
-        el.id = id;
-        document.getElementById("source-status").appendChild(el);
+async function fetchWithRetry(source) {
+  const api1 = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}&count=100`;
+  
+  try {
+    const response = await fetch(api1);
+    const data = await response.json();
+    
+    if (data.status === "ok" && data.items) {
+      return data.items.map(item => ({
+        title: item.title,
+        link: item.link,
+        date: item.pubDate,
+        source: source.name
+      }));
     }
-    el.className = "badge " + state;
-    el.textContent = (state === 'loading' ? '⏳ ' : '✅ ') + name;
-}
-
-async function fetchSource(source) {
-    setBadge(source.name, "loading");
-    try {
-        // Requesting 50 items per source to ensure we hit 100+ total
-        const res = await fetch(`${RSS2JSON}${encodeURIComponent(source.url)}&count=50`);
-        const data = await res.json();
-        if (data.status !== "ok") throw new Error();
-        
-        setBadge(source.name, "ok");
-        return data.items.map(item => ({
-            title: item.title,
-            source: source.name,
-            date: item.pubDate,
-            link: item.link
-        }));
-    } catch (e) {
-        setBadge(source.name, "err");
-        return [];
-    }
+  } catch (err) {
+    console.error("Primary API failed for " + source.name, err);
+  }
+  return [];
 }
 
 async function loadJobs() {
-    allJobs = [];
-    document.getElementById("jobs").innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Fetching 100+ latest jobs...</p>";
-    
-    // Fetch all sources in parallel
-    const results = await Promise.all(SOURCES.map(s => fetchSource(s)));
-    results.forEach(batch => allJobs.push(...batch));
+  const status = document.getElementById("status-msg");
+  const grid = document.getElementById("jobs");
+  const countBadge = document.getElementById("total-count");
 
-    // Remove duplicates (by title)
-    allJobs = Array.from(new Set(allJobs.map(a => a.title)))
-        .map(title => allJobs.find(a => a.title === title));
+  status.textContent = "Fetching 100+ Jobs from Govt Sources...";
+  grid.innerHTML = "";
+  allJobs = [];
 
-    // Sort by Date
-    allJobs.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const results = await Promise.all(SOURCES.map(s => fetchWithRetry(s)));
+  
+  results.forEach(batch => {
+    if (batch) allJobs.push(...batch);
+  });
 
-    document.getElementById("total-count").textContent = allJobs.length + " Jobs Found";
-    
-    renderJobs(allJobs);
+  const uniqueJobs = Array.from(new Map(allJobs.map(item => [item.title, item])).values());
+  uniqueJobs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (uniqueJobs.length > 0) {
+    status.textContent = "Successfully Loaded Latest Vacancies";
+    countBadge.textContent = uniqueJobs.length + " Jobs";
+    renderJobs(uniqueJobs);
+  } else {
+    status.textContent = "Error: Could not reach servers. Please try again later.";
+  }
 }
 
 function renderJobs(list) {
-    const container = document.getElementById("jobs");
-    container.innerHTML = list.map(job => `
-        <div class="card">
-            <div>
-                <h3>${job.title}</h3>
-                <div class="meta">
-                    <p><i class="fa fa-university"></i> ${job.source}</p>
-                    <p><i class="fa fa-calendar-check"></i> ${new Date(job.date).toDateString()}</p>
-                </div>
-            </div>
-            <a href="${job.link}" target="_blank" class="view-link">Apply Now <i class="fa fa-arrow-right"></i></a>
-        </div>
-    `).join("");
+  const grid = document.getElementById("jobs");
+  grid.innerHTML = list.map(job => `
+    <div class="card">
+      <div>
+        <span class="source-tag">${job.source}</span>
+        <h3>${job.title}</h3>
+        <p style="font-size:12px; color:#8899cc;"><i class="fa fa-calendar"></i> ${new Date(job.date).toLocaleDateString()}</p>
+      </div>
+      <a href="${job.link}" target="_blank" class="view-link">View Details</a>
+    </div>
+  `).join("");
 }
 
 window.onload = loadJobs;
